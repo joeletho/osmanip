@@ -6,6 +6,7 @@ lib
 bin
 a.out
 **/*.o
+**/*.so
 studies/benchmarking/manipulators
 
 #====================================================
@@ -24,4 +25,15 @@ guides
 *.txt
 *.odt
 *.rtf
+*.cbp
+
+#====================================================
+#     CMAKE FILES
+#====================================================
+!CMakeLists.txt
+cmake-*
+cmake_*
+CMakeFiles/
+# for CMake-generated Makefile
+Makefile
 
