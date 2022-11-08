@@ -9,8 +9,8 @@
 //====================================================
 
 //My headers
-#include "../../include/manipulators/common.hpp"
-#include "../../include/manipulators/colsty.hpp"
+#include "../../../include/manipulators/common.hpp"
+#include "../../../include/manipulators/colsty.hpp"
 #ifdef _WIN32
 #include "../../include/utility/windows.hpp"
 #endif
