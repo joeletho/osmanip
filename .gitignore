@@ -36,4 +36,5 @@ cmake_*
 CMakeFiles/
 # for CMake-generated Makefile
 Makefile
+Testing/
 
