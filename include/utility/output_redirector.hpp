@@ -13,7 +13,7 @@
 //====================================================
 #pragma once
 #ifndef OSMANIP_OUTPUTREDIRECTOR_HPP
-#  define OSMANIP_OUTPUTREDIRECTOR_HPP
+#define OSMANIP_OUTPUTREDIRECTOR_HPP
 
 //====================================================
 //     Headers
@@ -30,7 +30,7 @@
 #include <string>
 
 namespace osm
- {
+{
   //====================================================
   //     Aliases
   //====================================================
@@ -54,8 +54,7 @@ namespace osm
     //     Constructors
     //====================================================
 
-    OutputRedirector();
-    explicit OutputRedirector( std::string filename );
+    explicit OutputRedirector( std::string filename = "redirected_output.txt" );
 
     //====================================================
     //     Destructor
@@ -67,7 +66,7 @@ namespace osm
     //     Setters
     //====================================================
 
-    void setFilename( const std::string & filename );
+    void setFilename( const std::string& filename );
 
     //====================================================
     //     Getters
@@ -85,14 +84,6 @@ namespace osm
     void touch();
 
     bool isEnabled();
-
-    //====================================================
-    //     Static public variables
-    //====================================================
-
-    static const std::string DEFAULT_FILE_DIR;
-    static const std::string DEFAULT_FILEPATH;
-    static const std::string DEFAULT_FILENAME;
 
     private:
     //====================================================
@@ -127,6 +118,6 @@ namespace osm
     void exception_file_not_found();
   };
 
- }      // namespace osm
+}      // namespace osm
 
 #endif
