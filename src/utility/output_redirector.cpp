@@ -16,7 +16,6 @@
 #include "../../include/utility/output_redirector.hpp"
 #include "../../include/utility/iostream.hpp"
 #include "../../include/utility/strings.hpp"
-#include "../../include/utility/sstream.hpp"
 
 // External headers
 #include <arsenalgear/utils.hpp>
@@ -25,43 +24,16 @@
 #include <stdexcept>
 #include <mutex>
 #include <filesystem>
-#include <sstream>
 #include <utility>
 
 namespace osm
 {
-
-//   OutputRedirector redirout;
-
-  //====================================================
-  //     Constant variables
-  //====================================================
-
-  const std::string OutputRedirector::DEFAULT_FILENAME = "redirected_output.txt";
-  const std::string OutputRedirector::DEFAULT_FILE_DIR = fs::current_path().string();
-  const std::string OutputRedirector::DEFAULT_FILEPATH = DEFAULT_FILE_DIR + DEFAULT_FILENAME;
 
   //====================================================
   //     Constructors and destructors
   //====================================================
 
   // Default constructor
-  /**
-   * @brief Construct a new OutputRedirector object. Default constructor will set the main attributes to default values.
-   *
-   */
-  OutputRedirector::OutputRedirector():
-   std::ostream( this ),
-   Stringbuf(),
-   enabled_( false ),
-   filename_( DEFAULT_FILENAME ),
-   filepath_( DEFAULT_FILEPATH ),
-   last_ansi_str_size_( 0 ),
-   last_ansi_str_index_( 0 )
-  {
-  }
-
-  // Parametric constructor
   /**
    * @brief Construct a new OutputRedirector object. The filename must be relative to the working directory.
    *
@@ -106,7 +78,7 @@ namespace osm
   {
     std::scoped_lock<std::mutex> slock { this->getMutex() };
     filename_ = filename;
-    filepath_ = DEFAULT_FILE_DIR + filename_;
+    filepath_ = getFilepath() + filename_;
 
     output_str_.clear();
     last_ansi_str_index_ = 0;

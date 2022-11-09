@@ -9,7 +9,7 @@
 
 //My headers
 #include "../../../include/utility/iostream.hpp"
-#include "../include/manipulators/decorator.hpp"
+#include "../../../include/manipulators/decorator.hpp"
 
 //Extra headers
 #include <doctest/doctest.h>
