@@ -304,7 +304,7 @@ namespace osm
        }
       ss << std::endl;
      }
-    osm::cout << ss.str();
+    osm::cout << ss.str() << std::flush;
     already_drawn_ = true;
    }
 
