@@ -13,21 +13,21 @@
 //====================================================
 #pragma once
 #ifndef OSMANIP_OUTPUTREDIRECTOR_HPP
-#define OSMANIP_OUTPUTREDIRECTOR_HPP
+#  define OSMANIP_OUTPUTREDIRECTOR_HPP
 
 //====================================================
 //     Headers
 //====================================================
 
 // My headers
-#include "sstream.hpp"
+#  include "sstream.hpp"
 
 // STD headers
-#include <atomic>
-#include <fstream>
-#include <filesystem>
-#include <stdint.h>
-#include <string>
+#  include <atomic>
+#  include <fstream>
+#  include <filesystem>
+#  include <stdint.h>
+#  include <string>
 
 namespace osm
 {
@@ -54,7 +54,7 @@ namespace osm
     //     Constructors
     //====================================================
 
-    explicit OutputRedirector( std::string filename = "redirected_output.txt" );
+    explicit OutputRedirector( const std::string & filename = "redirected_output.txt" );
 
     //====================================================
     //     Destructor
@@ -66,14 +66,15 @@ namespace osm
     //     Setters
     //====================================================
 
-    void setFilename( const std::string& filename );
+    void setFilename( const std::string & filename );
+    void setFileDirectory( const std::string & file_dir );
 
     //====================================================
     //     Getters
     //====================================================
 
     [[nodiscard]] std::string & getFilename();
-    [[nodiscard]] std::string & getFilepath();
+    [[nodiscard]] fs::path getFilepath();
 
     //====================================================
     //     Methods
@@ -91,9 +92,9 @@ namespace osm
     //====================================================
     std::atomic<bool> enabled_;
 
-    std::string file_dir_;
     std::string filename_;
-    std::string filepath_;
+    fs::path file_dir_;
+    fs::path filepath_;
 
     std::fstream fstream_;
     std::stringstream output_str_;
@@ -109,6 +110,7 @@ namespace osm
     int32_t sync() override;
 
     // Helpers
+    void create_filepath();
     void write_output();
     void prepare_output();
     void read_file();
