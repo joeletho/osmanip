@@ -24,7 +24,6 @@
 #include <stdexcept>
 #include <mutex>
 #include <filesystem>
-#include <utility>
 
 namespace osm
 {
@@ -35,18 +34,23 @@ namespace osm
 
   // Default constructor
   /**
-   * @brief Construct a new OutputRedirector object. The filename must be relative to the working directory.
+   * @brief Construct a new OutputRedirector object with the default filename, or as provided by the user. The filename is relative to the current working directory.
    *
    * @param filename name of the output file.
    *
    */
-  OutputRedirector::OutputRedirector( std::string filename ):
+  OutputRedirector::OutputRedirector( const std::string & filename ):
    enabled_( false ),
-   filename_( std::move( filename ) ),
-   filepath_( fs::current_path() /= filename_ ),
+   file_dir_( fs::current_path() ),
    last_ansi_str_size_( 0 ),
    last_ansi_str_index_( 0 )
   {
+    this->rdbuf( this );
+
+    std::string cwd = fs::current_path().filename();
+    std::string output_dir = ( cwd == "bin" || cwd == "build" ) ? "../output" : "output";
+    setFileDirectory( output_dir );
+    setFilename( filename );
   }
 
   // Destructor
@@ -58,7 +62,7 @@ namespace osm
   {
     if( enabled_ )
     {
-      this->flush();
+      this->pubsync();
       enabled_ = false;
     }
   }
@@ -69,7 +73,7 @@ namespace osm
 
   // setFilename
   /**
-   * @brief Set the filename of the output file. The filename must be relative to the working directory.
+   * @brief Sets the filename of the output file relative to the current working directory and resets internal data.
    *
    * @param filename the filename of the output file.
    *
@@ -77,19 +81,27 @@ namespace osm
   void OutputRedirector::setFilename( const std::string & filename )
   {
     std::scoped_lock<std::mutex> slock { this->getMutex() };
+    filename_.clear();
     filename_ = filename;
-    filepath_ = filepath_ + filename_;
+    create_filepath();
 
     output_str_.clear();
     last_ansi_str_index_ = 0;
     last_ansi_str_size_ = 0;
   }
 
-  //   void OutputRedirector::setFilepath( fs::path & path )
-  //   {
-  //     std::scoped_lock<std::mutex> slockthis->{ getMutex() };
-  //     filepath_ = path.string() + filename_;
-  //   }
+  // setFileDirectory
+  /**
+   * @brief Sets the file directory of the output file. The file directory is relative to the current working directory.
+   *
+   * @param file_dir the file directory of the output file.
+   *
+   */
+  void OutputRedirector::setFileDirectory( const std::string & file_dir )
+  {
+    std::scoped_lock<std::mutex> slock { this->getMutex() };
+    file_dir_ = ( file_dir_ / file_dir ).lexically_normal();
+  }
 
   //====================================================
   //     Getters
@@ -110,12 +122,12 @@ namespace osm
 
   // getFilepath
   /**
-   * @brief Get the name of the path to the output file.
+   * @brief Get the absolute path of the output file.
    *
-   * @return string containing the name of the path to the output file.
+   * @return fs::path containing the absolute path of the output file.
    *
    */
-  std::string & OutputRedirector::getFilepath()
+  fs::path OutputRedirector::getFilepath()
   {
     std::scoped_lock<std::mutex> slock { this->getMutex() };
     return filepath_;
@@ -142,7 +154,7 @@ namespace osm
   /**
    * @brief Flushes the buffer and disables output redirection.
    *
-   * @throws std::runtime_error if redirection is currently not enabled.
+   * @throws std::runtime_error if redirection is not enabled.
    *
    */
   void OutputRedirector::end()
@@ -154,7 +166,7 @@ namespace osm
 
   // touch
   /**
-   * @brief Opens the file, if present. Otherwise, creates the file.
+   * @brief Opens the file, if present. Otherwise, creates the directory and file as needed.
    *
    * @throws std::invalid_argument if the file cannot be opened.
    *
@@ -163,9 +175,14 @@ namespace osm
   {
     std::scoped_lock<std::mutex> slock { this->getMutex() };
 
-    if( fstream_.open( filename_, std::fstream::in ); !fstream_.is_open() )
+    if( !fs::exists( file_dir_ ) )
     {
-      if( fstream_.open( filename_, std::fstream::trunc | std::fstream::out ); !fstream_.is_open() )
+      fs::create_directories( file_dir_ );
+    }
+
+    if( fstream_.open( filepath_, std::fstream::in ); !fstream_.is_open() )
+    {
+      if( fstream_.open( filepath_, std::fstream::trunc | std::fstream::out ); !fstream_.is_open() )
       {
         exception_file_not_found();
       }
@@ -211,6 +228,16 @@ namespace osm
     return fstream_.rdstate();
   }
 
+  // setFileDirectory
+  /**
+   * @brief  the filepath of the output file by concatenating the file directory and filename.
+   *
+   */
+  void OutputRedirector::create_filepath()
+  {
+    filepath_ = file_dir_ / filename_;
+  }
+
   // prepare_output
   /**
    * @brief Updates and formats the output string and clears the buffer.
@@ -236,7 +263,7 @@ namespace osm
    */
   void OutputRedirector::write_output()
   {
-    if( fstream_.open( filename_, std::fstream::trunc | std::fstream::out ); !fstream_.is_open() )
+    if( fstream_.open( filepath_, std::fstream::trunc | std::fstream::out ); !fstream_.is_open() )
     {
       exception_file_not_found();
       return;
@@ -255,7 +282,7 @@ namespace osm
    */
   void OutputRedirector::read_file()
   {
-    if( fstream_.open( filename_, std::fstream::in ); !fstream_.is_open() )
+    if( fstream_.open( filepath_, std::fstream::in ); !fstream_.is_open() )
     {
       exception_file_not_found();
       return;
@@ -306,7 +333,7 @@ namespace osm
     std::string filename;
     {
       std::scoped_lock<std::mutex> slock { std::adopt_lock, this->getMutex() };
-      filename = filename_;
+      filename = filepath_;
     }
 
     throw std::invalid_argument( std::string( "Could not open file " ) + "'" + filename + "'" );
