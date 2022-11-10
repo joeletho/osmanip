@@ -376,7 +376,8 @@ int main()
   osm::cout << osm::feat( osm::col, "lt cyan" )
             << "Redirecting example output to '"
             << osm::feat( osm::sty, "underlined" ) << osm::feat( osm::col, "white" )
-            << osm::redirout.getFilename()
+            << osm::redirout.getFilepath().parent_path().parent_path().filename() /
+        osm::redirout.getFilepath().parent_path().filename() / osm::redirout.getFilename()
             << osm::feat( osm::rst, "underlined" ) << osm::feat( osm::col, "lt cyan" ) << "'."
             << osm::feat( osm::rst, "all" ) << std::flush;
 
@@ -495,7 +496,8 @@ int main()
             << osm::feat( osm::col, "lt cyan" )
             << "Open `"
             << osm::feat( osm::col, "white" ) << osm::feat( osm::sty, "underlined" )
-            << osm::redirout.getFilename()
+            << osm::redirout.getFilepath().parent_path().parent_path().filename() /
+        osm::redirout.getFilepath().parent_path().filename() / osm::redirout.getFilename()
             << osm::feat( osm::rst, "underlined" ) << osm::feat( osm::col, "lt cyan" )
             << "` to view output.\n\n"
             << osm::feat( osm::rst, "all" ) << std::flush;
