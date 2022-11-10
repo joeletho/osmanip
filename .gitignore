@@ -17,6 +17,7 @@ studies/benchmarking/manipulators
 guides
 **/deps
 .idea
+output
 
 #====================================================
 #     OTHER FILES
@@ -36,5 +37,4 @@ cmake_*
 CMakeFiles/
 # for CMake-generated Makefile
 Makefile
-Testing/
 
