@@ -78,7 +78,7 @@ namespace osm
   {
     std::scoped_lock<std::mutex> slock { this->getMutex() };
     filename_ = filename;
-    filepath_ = getFilepath() + filename_;
+    filepath_ = filepath_ + filename_;
 
     output_str_.clear();
     last_ansi_str_index_ = 0;
